@@ -96,8 +96,8 @@ restart_server() {
     # No tmux session to respawn — run the server right here in the current
     # terminal (foreground; Ctrl-C to stop), the same way serve.sh runs by hand.
     # exec replaces this process, so nothing after returns; print the post-deploy
-    # reminder FIRST. (If a server is already running elsewhere on the port,
-    # serve.sh will fail to bind with a clear "address already in use".)
+    # reminder FIRST. If a server is already running on the port, serve.sh prompts
+    # to stop it (this terminal is attended) before binding.
     warn "No tmux session '$TMUX_TARGET' — starting the server in THIS terminal (Ctrl-C to stop)."
     warn "  (Set IRON_LEDGER_TMUX=<session[:window]> to have redeploy respawn a tmux window instead.)"
     print_sw_reminder
@@ -122,8 +122,10 @@ restart_server() {
   info "Restarting server in tmux target '$TMUX_TARGET'…"
   # respawn-window -k kills whatever the window is running (the old serve.sh /
   # uvicorn) and starts a fresh serve.sh in the SAME window — deterministic,
-  # no Ctrl-C key-send timing to get wrong.
-  tmux respawn-window -k -t "$TMUX_TARGET" "cd '$REPO_DIR' && exec ./scripts/serve.sh"
+  # no Ctrl-C key-send timing to get wrong. WT_KILL_STALE=1 so serve.sh clears a
+  # lingering just-killed instance on its own — this pane is unattended, so it
+  # must not stop to prompt.
+  tmux respawn-window -k -t "$TMUX_TARGET" "cd '$REPO_DIR' && WT_KILL_STALE=1 exec ./scripts/serve.sh"
   info "Server respawned. Watch it:  tmux attach -t $TMUX_TARGET"
   return 0
 }
