@@ -79,12 +79,30 @@ info "Rebuilding via ./run.sh…"
 ./run.sh
 
 # ---- 4. restart --------------------------------------------------------------
+# Post-deploy reminder: a fresh build can still look "old" on a device because of
+# the service-worker cache, not the deploy. Shown after both restart paths.
+print_sw_reminder() {
+  cat <<'EOF'
+
+  Device still showing the OLD UI? That's the service-worker cache, not the deploy:
+    • The PWA auto-updates on the login page; logged in, tap the "new version — Reload" banner.
+    • Confirm via the footer build stamp (v<date>) — it should match the new build.
+    • If stuck: unregister the service worker + clear site data for the site, then reload.
+EOF
+}
+
 restart_server() {
   if ! command -v tmux >/dev/null 2>&1 || ! tmux has-session -t "$TMUX_TARGET" 2>/dev/null; then
-    warn "No tmux session '$TMUX_TARGET' found — restart the server yourself:"
-    warn "  In the tmux/screen window running serve.sh:  Ctrl-C, then  ./scripts/serve.sh"
-    warn "  (Set IRON_LEDGER_TMUX=<session[:window]> so redeploy can auto-restart it.)"
-    return 1
+    # No tmux session to respawn — run the server right here in the current
+    # terminal (foreground; Ctrl-C to stop), the same way serve.sh runs by hand.
+    # exec replaces this process, so nothing after returns; print the post-deploy
+    # reminder FIRST. (If a server is already running elsewhere on the port,
+    # serve.sh will fail to bind with a clear "address already in use".)
+    warn "No tmux session '$TMUX_TARGET' — starting the server in THIS terminal (Ctrl-C to stop)."
+    warn "  (Set IRON_LEDGER_TMUX=<session[:window]> to have redeploy respawn a tmux window instead.)"
+    print_sw_reminder
+    info "Code: ${before:0:9} -> ${after:0:9}; client/dist rebuilt. Starting serve.sh…"
+    exec "$REPO_DIR/scripts/serve.sh"
   fi
   # respawn-window targets ONE window; with a session-only target it acts on that
   # session's ACTIVE window, which may not be the server's. Warn if the session has
@@ -92,8 +110,10 @@ restart_server() {
   # one — point the user at the exact target. (The documented setup is a dedicated
   # single-window session, where this is unambiguous.)
   if [[ "$TMUX_TARGET" != *:* ]]; then
-    local nwin
-    nwin="$(tmux list-windows -t "$TMUX_TARGET" 2>/dev/null | wc -l)"
+    # Fallback assignment: under `set -euo pipefail` a failing tmux list-windows
+    # (e.g. the session vanished after has-session) would otherwise abort the script.
+    local nwin=1
+    nwin="$(tmux list-windows -t "$TMUX_TARGET" 2>/dev/null | wc -l)" || nwin=1
     if [ "${nwin:-1}" -gt 1 ]; then
       warn "tmux session '$TMUX_TARGET' has $nwin windows — respawning its ACTIVE window."
       warn "  If serve.sh isn't there, set IRON_LEDGER_TMUX='$TMUX_TARGET:<window>' and re-run."
@@ -130,30 +150,16 @@ health_probe() {
   return 1
 }
 
-# Track real outcomes so the summary + exit code never claim success when the
-# server didn't actually come back up (a killed-old + failed-new leaves it down).
-if restart_server; then
-  if health_probe; then
-    cat <<EOF
-
-$(info "Redeploy OK — server is up.")
-  • Code:   ${before:0:9} -> ${after:0:9}
-  • Client: rebuilt (client/dist refreshed)
-  • Server: restarted in tmux '$TMUX_TARGET', health 200
-
-  Mobile still showing the OLD UI? That's the service-worker cache, not the deploy:
-    • The PWA shows an "A new version is available — Reload" banner — tap it.
-    • Confirm via the footer build stamp (v<date>) — it should match the new build.
-    • If stuck: unregister the service worker + clear site data for the site, then reload.
-EOF
-    exit 0
-  fi
-  err "Redeploy restarted the server but it is NOT healthy — it may be DOWN."
-  err "  Code rebuilt (${before:0:9} -> ${after:0:9}); inspect:  tmux attach -t $TMUX_TARGET"
-  exit 1
+# Reached only on the tmux-respawn path (the no-tmux path exec's serve.sh and never
+# returns). Verify health so the summary + exit code never claim success when a
+# killed-old + failed-new restart left the server down.
+restart_server
+if health_probe; then
+  info "Redeploy OK — server is up."
+  info "  Code: ${before:0:9} -> ${after:0:9}; client/dist rebuilt; restarted in tmux '$TMUX_TARGET', health 200."
+  print_sw_reminder
+  exit 0
 fi
-
-# Code is rebuilt but the server was NOT restarted (no tmux target). Don't claim success.
-err "Redeploy rebuilt the code (${before:0:9} -> ${after:0:9}) but did NOT restart the server."
-err "  Restart it manually (see the message above), then verify /api/health."
+err "Redeploy restarted the server but it is NOT healthy — it may be DOWN."
+err "  Code rebuilt (${before:0:9} -> ${after:0:9}); inspect:  tmux attach -t $TMUX_TARGET"
 exit 1
