@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { user, me } from "./lib/auth.js";
   import { syncState, resumeAfterRelogin } from "./lib/sync.js";
+  import { needRefresh, applyUpdate } from "./lib/pwa.js";
   import Login from "./Login.svelte";
   import AppShell from "./AppShell.svelte";
 
@@ -34,6 +35,20 @@
   // ($user truthy again), flush the preserved outbox.
   $: if ($user && $sessionExpired) {
     resumeAfterRelogin();
+  }
+
+  // On the (fresh) login page there's no in-progress workout to protect and
+  // logging in implies accepting the latest version, so auto-apply a waiting
+  // update instead of stranding the user on an old bundle with no prompt (the
+  // banner only lives in the authed shell). applyUpdate() reloads to the new
+  // build; the once-guard stops a re-fire before the reload lands. We skip the
+  // session-expired case on purpose: it holds a preserved outbox whose flush is
+  // tied to the in-memory sessionExpired flag, which a reload would reset — those
+  // users re-login into the shell and get the normal banner instead.
+  let autoUpdating = false;
+  $: if (checked && !$user && !$sessionExpired && $needRefresh && !autoUpdating) {
+    autoUpdating = true;
+    applyUpdate();
   }
 </script>
 

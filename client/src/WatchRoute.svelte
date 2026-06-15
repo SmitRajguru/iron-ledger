@@ -5,6 +5,7 @@
   import { onMount } from "svelte";
   import { user, me } from "./lib/auth.js";
   import { syncState, resumeAfterRelogin } from "./lib/sync.js";
+  import { needRefresh, applyUpdate } from "./lib/pwa.js";
   import Login from "./Login.svelte";
   import Watch from "./Watch.svelte";
 
@@ -17,6 +18,15 @@
   });
 
   $: if ($user && $sessionExpired) resumeAfterRelogin();
+
+  // Match the phone gate: auto-apply a waiting update on the fresh login page
+  // (nothing in progress; login implies accepting the latest). Skip the
+  // session-expired case (preserved outbox — see App.svelte for the rationale).
+  let autoUpdating = false;
+  $: if (checked && !$user && !$sessionExpired && $needRefresh && !autoUpdating) {
+    autoUpdating = true;
+    applyUpdate();
+  }
 </script>
 
 {#if !checked}
