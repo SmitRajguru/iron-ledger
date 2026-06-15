@@ -1,0 +1,1 @@
+FIXED — `client/src/lib/logging.js` `freshestBodyweight()` now clears pending on exact `__src_id` land, strictly newer projected `date`, or `syncState.rejectedIds` membership, so no remaining stale-stuck path on land/supersede/reject, and same-day just-saved values are not prematurely dropped (`projected.date > pending.date`, not `>=`); no new bug found in current reactive usage.

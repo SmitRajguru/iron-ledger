@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Pre-commit guard for the PUBLIC Iron Ledger repo. Two layers:
+#
+#  1) PUBLIC dependencies only — scripts/check-public-deps.sh fails if any
+#     lockfile/config resolves from a private package mirror (the main mechanical
+#     way a corporate index can leak into a public repo).
+#
+#  2) Content leak-check (optional, kept EXTERNAL on purpose so this public repo
+#     carries no internal codenames). If you develop on a machine where internal
+#     content could leak, point $IRON_LEDGER_LEAK_CHECKER at your denylist checker
+#     (e.g. a private overlay's leak-checker); it runs on the staged files and can
+#     block the commit. On a clean machine there's nothing internal to leak, so the
+#     dep check alone is enough.
+#
+# Enabled by `git config core.hooksPath .githooks` (setup.sh does this).
+set -euo pipefail
+
+ROOT=$(git rev-parse --show-toplevel)
+
+# (1) dependency sources must be public.
+if [ -x "$ROOT/scripts/check-public-deps.sh" ]; then
+  "$ROOT/scripts/check-public-deps.sh" || {
+    echo "pre-commit: a dependency resolves from a non-public registry — commit blocked." >&2
+    exit 1
+  }
+fi
+
+# (2) optional external content leak-checker.
+checker="${IRON_LEDGER_LEAK_CHECKER:-}"
+if [ -n "$checker" ] && [ -x "$checker" ]; then
+  mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACMR)
+  if [ "${#staged[@]}" -gt 0 ]; then
+    "$checker" "${staged[@]}" || {
+      echo "pre-commit: content leak-checker rejected the staged changes — commit blocked." >&2
+      exit 1
+    }
+  fi
+fi

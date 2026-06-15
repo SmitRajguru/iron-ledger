@@ -1,0 +1,5 @@
+1. **NOT-FIXED** — `swapExercise()`/`swapCandidates()` now prevent *new* duplicate creation during swap, but `{#each sessionExerciseIds as exId (exId)}` can still get duplicate ids if `selection` already contains dupes (hydrated persisted state or duplicate routine `ordered_exercise_ids`) because `sessionExerciseIds` copies `selection` as-is.  
+2. **FIXED** — `ExerciseCard.svelte` keeps canonical `draftWeightBase`/`draftAddedBase`, unit toggle only re-derives display via `syncDisplayFromBase()`, edits recompute base in `onWeightInput()`/`onAddedInput()`, and `buildSetPayload()` prefers `weightBase`/`addedWeightBase`; untouched lb↔kg toggles log byte-identical base values.  
+3. **FIXED** — `Today.svelte` `refreshToday()` is driven by 60s interval + `focus`/`visibilitychange`, cleaned up in `onDestroy`, and `effectiveDate = onToday ? todayStr : pinnedDate` makes today mode advance across midnight while pinned past dates stay fixed.  
+
+**NEW bug:** Unit toggle during in-progress typing can clobber the draft input because toggle always runs `syncDisplayFromBase()` immediately, replacing the user’s partial entry with rounded derived display.

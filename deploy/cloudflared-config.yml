@@ -1,0 +1,27 @@
+# Iron Ledger — example Cloudflare Tunnel config.
+#
+# Cloudflare terminates TLS at the edge and forwards plain HTTP to the app on
+# localhost, so uvicorn stays HTTP on 127.0.0.1:8000 (never exposed directly).
+#
+# One-time setup:
+#   cloudflared tunnel login
+#   cloudflared tunnel create iron-ledger
+#   cloudflared tunnel route dns iron-ledger ironledger.example.com
+#   # copy this file to ~/.cloudflared/config.yml (or /etc/cloudflared/config.yml),
+#   # fill in the tunnel id + credentials path below, then run it as a service:
+#   sudo cloudflared service install      # restart-on-crash systemd service
+#   # (or: cloudflared tunnel run iron-ledger)
+#
+# After deploy, in server/.env set:  WT_ALLOWED_HOSTS=ironledger.example.com
+# (the session cookie is auto-marked Secure off-localhost; HTTPS is required for
+# PWA install + the service worker).
+
+tunnel: <TUNNEL-UUID-OR-NAME>
+credentials-file: /home/<user>/.cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  - hostname: ironledger.example.com
+    # MUST match WT_HOST:WT_PORT the server listens on (default 127.0.0.1:8000).
+    service: http://127.0.0.1:8000
+  # Required catch-all (every ingress list must end with one):
+  - service: http_status:404

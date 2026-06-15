@@ -1,0 +1,56 @@
+{
+  "athlete_note": "32-year-old intermediate male lifter, ~3 years consistent training, currently on a slow lean recomposition/cut while running a 6-day PPL to keep size and push bench/squat past long-standing plateaus.",
+  "exercises": [
+    {"key":"bench","name":"Barbell Bench Press","type":"weighted","day":"push","rest_seconds":180},
+    {"key":"ohp","name":"Standing Overhead Press","type":"weighted","day":"push","rest_seconds":180},
+    {"key":"incline_db","name":"Incline Dumbbell Press","type":"weighted","day":"push","rest_seconds":120},
+    {"key":"lateral_raise","name":"Dumbbell Lateral Raise","type":"weighted","day":"push","rest_seconds":75},
+    {"key":"triceps_pushdown","name":"Cable Triceps Pushdown","type":"weighted","day":"push","rest_seconds":75},
+    {"key":"deadlift","name":"Conventional Deadlift","type":"weighted","day":"pull","rest_seconds":210},
+    {"key":"barbell_row","name":"Barbell Bent-Over Row","type":"weighted","day":"pull","rest_seconds":150},
+    {"key":"pullup","name":"Assisted Pull-Up","type":"bodyweight","day":"pull","rest_seconds":120,"assisted":true},
+    {"key":"face_pull","name":"Cable Face Pull","type":"weighted","day":"pull","rest_seconds":75},
+    {"key":"barbell_curl","name":"Barbell Biceps Curl","type":"weighted","day":"pull","rest_seconds":90},
+    {"key":"squat","name":"Barbell Back Squat","type":"weighted","day":"legs","rest_seconds":210},
+    {"key":"rdl","name":"Romanian Deadlift","type":"weighted","day":"legs","rest_seconds":150},
+    {"key":"leg_press","name":"Leg Press","type":"weighted","day":"legs","rest_seconds":150},
+    {"key":"leg_curl","name":"Seated Leg Curl","type":"weighted","day":"legs","rest_seconds":90},
+    {"key":"calf_raise","name":"Standing Calf Raise","type":"weighted","day":"legs","rest_seconds":75},
+    {"key":"run","name":"Outdoor Run","type":"cardio","day":"cardio","rest_seconds":0},
+    {"key":"incline_walk","name":"Treadmill Incline Walk","type":"cardio","day":"cardio","rest_seconds":0}
+  ],
+  "routines": [
+    {"name":"Push","exercise_keys":["bench","ohp","incline_db","lateral_raise","triceps_pushdown"],"weekdays":[0,3]},
+    {"name":"Pull","exercise_keys":["deadlift","barbell_row","pullup","face_pull","barbell_curl"],"weekdays":[1,4]},
+    {"name":"Legs","exercise_keys":["squat","rdl","leg_press","leg_curl","calf_raise"],"weekdays":[2,5]}
+  ],
+  "progression": {
+    "bench": {"start_top_lb":175,"weekly_increment_lb":5,"work_sets":3,"reps":[5,5,5],"warmup_sets":3,"stall_weeks":[3],"deload_week":4},
+    "ohp": {"start_top_lb":105,"weekly_increment_lb":5,"work_sets":3,"reps":[6,5,5],"warmup_sets":2,"stall_weeks":[2],"deload_week":4},
+    "incline_db": {"start_top_lb":65,"weekly_increment_lb":5,"work_sets":3,"reps":[10,9,8],"warmup_sets":1,"deload_week":4},
+    "lateral_raise": {"start_top_lb":20,"weekly_increment_lb":0,"work_sets":3,"reps":[12,12,11],"warmup_sets":0,"deload_week":4},
+    "triceps_pushdown": {"start_top_lb":50,"weekly_increment_lb":5,"work_sets":3,"reps":[12,11,10],"warmup_sets":0,"deload_week":4},
+    "deadlift": {"start_top_lb":315,"weekly_increment_lb":10,"work_sets":1,"reps":[5],"warmup_sets":4,"stall_weeks":[3],"deload_week":4},
+    "barbell_row": {"start_top_lb":155,"weekly_increment_lb":5,"work_sets":3,"reps":[8,8,7],"warmup_sets":2,"deload_week":4},
+    "pullup": {"start_assist_lb":55,"weekly_assist_reduction_lb":7,"work_sets":3,"reps":[8,7,6],"warmup_sets":0,"deload_week":4},
+    "face_pull": {"start_top_lb":35,"weekly_increment_lb":0,"work_sets":3,"reps":[15,15,14],"warmup_sets":0,"deload_week":4},
+    "barbell_curl": {"start_top_lb":75,"weekly_increment_lb":5,"work_sets":3,"reps":[10,9,8],"warmup_sets":1,"stall_weeks":[3],"deload_week":4},
+    "squat": {"start_top_lb":255,"weekly_increment_lb":10,"work_sets":3,"reps":[5,5,5],"warmup_sets":3,"stall_weeks":[2],"deload_week":4},
+    "rdl": {"start_top_lb":185,"weekly_increment_lb":5,"work_sets":3,"reps":[8,8,8],"warmup_sets":2,"deload_week":4},
+    "leg_press": {"start_top_lb":360,"weekly_increment_lb":10,"work_sets":3,"reps":[12,11,10],"warmup_sets":2,"deload_week":4},
+    "leg_curl": {"start_top_lb":110,"weekly_increment_lb":5,"work_sets":3,"reps":[12,11,10],"warmup_sets":1,"deload_week":4},
+    "calf_raise": {"start_top_lb":135,"weekly_increment_lb":5,"work_sets":3,"reps":[12,12,11],"warmup_sets":1,"deload_week":4}
+  },
+  "cardio": {
+    "run": {"days":[3],"duration_min":28,"distance_km":4.8,"weekly_distance_growth_km":0.4},
+    "incline_walk": {"days":[1,5],"duration_min":35,"distance_km":3.2,"weekly_distance_growth_km":0.1}
+  },
+  "bodycomp": {
+    "bw_start_lb":190.0, "bw_end_lb":187.0,
+    "bf_start_pct":18.5, "bf_end_pct":17.2,
+    "muscle_start_lb":151.0, "muscle_end_lb":152.0,
+    "waist_start_cm":88.0, "waist_end_cm":85.5,
+    "measure_weekdays":[6]
+  },
+  "deload_week_index": 4
+}

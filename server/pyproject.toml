@@ -1,0 +1,15 @@
+[project]
+name = "wt-tracker-server"
+version = "0.0.0"
+description = "WT Tracker backend: serves the PWA and (later) the event-sync API."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "bcrypt>=4.1",            # password hashing
+    "itsdangerous>=2.1",     # signed session cookie
+    "python-dotenv>=1.0",    # load server/.env
+]
+
+[tool.uv]
+package = false

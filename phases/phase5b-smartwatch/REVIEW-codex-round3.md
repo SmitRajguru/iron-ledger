@@ -1,0 +1,2 @@
+FIXED — `resolveSessionExercises`, `Today.svelte`, and `Watch.svelte` now satisfy (1)-(5): displayed list is `base ∪ logged` with committed-only base override, `hasCommittedSession` is strictly `started!=null`, Today gates start-card on that committed flag and only passes `current` when committed, Watch no longer collapses uncommitted default days, and empty committed custom stays empty (no default resurfacing).  
+NEW bug: none found in this scan for 2b/feedback session-persistence regressions.
